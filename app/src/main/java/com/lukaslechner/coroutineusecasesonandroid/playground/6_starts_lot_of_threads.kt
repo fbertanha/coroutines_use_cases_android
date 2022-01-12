@@ -1,17 +1,15 @@
 package com.lukaslechner.coroutineusecasesonandroid.playground
 
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlin.concurrent.thread
 
 /**
  * Created by felipebertanha on 10/January/2022
  */
 
-fun main() = runBlocking<Unit> {
+fun main() {
     repeat(times = 1_000_000) {
-        launch {
-            delay(5000)
+        thread {
+            Thread.sleep(5000)
             print(".")
         }
     }
