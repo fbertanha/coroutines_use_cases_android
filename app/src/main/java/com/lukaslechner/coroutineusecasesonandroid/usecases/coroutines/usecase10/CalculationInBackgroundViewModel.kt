@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.lukaslechner.coroutineusecasesonandroid.base.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.math.BigInteger
 import kotlin.system.measureTimeMillis
 
@@ -12,7 +13,7 @@ class CalculationInBackgroundViewModel : BaseViewModel<UiState>() {
     fun performCalculation(factorialOf: Int) {
         uiState.value = UiState.Loading
 
-        viewModelScope.launch() {
+        viewModelScope.launch {
             var result = BigInteger.ZERO
             val computationDuration = measureTimeMillis {
                 result = calculateFactorialOf(factorialOf)
@@ -20,18 +21,23 @@ class CalculationInBackgroundViewModel : BaseViewModel<UiState>() {
 
             var resultString = ""
             val stringConversionDuration = measureTimeMillis {
-                resultString = result.toString()
+                withContext(Dispatchers.Default) {
+                    resultString = result.toString()
+                }
             }
 
-            uiState.value = UiState.Success(resultString, computationDuration, stringConversionDuration)
+            uiState.value =
+                UiState.Success(resultString, computationDuration, stringConversionDuration)
         }
     }
 
-    private fun calculateFactorialOf(number: Int) : BigInteger {
-        var factorial = BigInteger.ONE
-        for(i in 1 .. number) {
-            factorial = factorial.multiply(BigInteger.valueOf(i.toLong()))
+    private suspend fun calculateFactorialOf(number: Int) =
+        withContext(Dispatchers.Default) {
+            var factorial = BigInteger.ONE
+            for (i in 1..number) {
+                factorial = factorial.multiply(BigInteger.valueOf(i.toLong()))
+            }
+            factorial
         }
-        return factorial
-    }
+
 }
